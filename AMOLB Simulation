@@ -1,0 +1,67 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define objectives with a predefined weight for simplicity
+def defineObjectives():
+    return {'latency': 0.4, 'bandwidth': 0.3, 'cpu': 0.3}
+
+# Simulate collecting network statistics
+def collectNetworkStatistics():
+    return {
+        'latency': np.random.uniform(0, 100),
+        'bandwidth': np.random.uniform(0, 100),
+        'cpu': np.random.uniform(0, 100)
+    }
+
+# Custom load balancing algorithm that considers multiple factors.
+def custom_load_balancer(network_stats, objectives):
+    # Calculate a weighted score based on objectives
+    latency_score = (100 - network_stats['latency']) * objectives['latency']
+    bandwidth_score = network_stats['bandwidth'] * objectives['bandwidth']
+    cpu_score = (100 - network_stats['cpu']) * objectives['cpu']
+    total_score = latency_score + bandwidth_score + cpu_score
+    return total_score
+
+# Run the custom algorithm multiple times and collect data.
+def run_custom_algorithm(iterations):
+    objectives = defineObjectives()
+    performance_scores = []
+    
+    for _ in range(iterations):
+        network_stats = collectNetworkStatistics()
+        score = custom_load_balancer(network_stats, objectives)
+        performance_scores.append(score)
+    
+    return performance_scores
+
+# Implement a smoothing function to reduce variability
+def smooth_scores(performance_scores, alpha=0.1):
+    smoothed_scores = []
+    last_score = performance_scores[0]
+    
+    for score in performance_scores:
+        smoothed_score = last_score * (1 - alpha) + score * alpha
+        smoothed_scores.append(smoothed_score)
+        last_score = smoothed_score
+        
+    return smoothed_scores
+
+# Plot the performance of the custom algorithm.
+def plot_performance(performance_scores, smoothed_scores):
+    plt.figure(figsize=(14, 7))
+    plt.plot(performance_scores, label='Original Performance', marker='o', linestyle='-', color='blue')
+    plt.plot(smoothed_scores, label='Smoothed Performance', marker='o', linestyle='--', color='orange')
+    plt.xlabel('Iteration')
+    plt.ylabel('Performance Score')
+    plt.title('Performance of Custom Load Balancing Algorithm Over Multiple Runs')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# Run the simulation
+iterations = 100
+performance_scores = run_custom_algorithm(iterations)
+smoothed_scores = smooth_scores(performance_scores, alpha=0.1)
+
+# Plot the original and smoothed performance scores
+plot_performance(performance_scores, smoothed_scores)
