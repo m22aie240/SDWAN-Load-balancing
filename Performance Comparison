@@ -1,0 +1,61 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define objectives and weights
+def defineObjectives():
+    return {'latency': 0.4, 'bandwidth': 0.3, 'cpu': 0.3}
+
+# Simulate collecting network statistics
+def collectNetworkStatistics():
+    return {
+        'latency': random.uniform(0, 100),
+        'bandwidth': random.uniform(0, 100),
+        'cpu': random.uniform(0, 100)
+    }
+
+# Round Robin algorithm for comparison
+def round_robin(network_load):
+    # Evenly distribute the load
+    return np.mean(network_load) - np.std(network_load)
+
+# Least Connections algorithm for comparison
+def least_connections(network_load):
+    # Favor servers with fewer connections
+    return np.mean(network_load) - (0.5 * np.std(network_load))
+
+# Custom algorithm implementation
+def custom_algorithm(network_load, objectives):
+    network_stats = collectNetworkStatistics()
+    # Simulate a decision based on objectives and network statistics
+    decision_score = (objectives['latency'] * (100 - network_stats['latency']) +
+                      objectives['bandwidth'] * network_stats['bandwidth'] +
+                      objectives['cpu'] * (100 - network_stats['cpu']))
+    return decision_score
+
+# Run a simulation and compare algorithms
+def compare_algorithms(num_requests):
+    network_load = [random.uniform(0, 100) for _ in range(num_requests)]
+    objectives = defineObjectives()
+    rr_result = round_robin(network_load)
+    lc_result = least_connections(network_load)
+    custom_result = custom_algorithm(network_load, objectives)
+    return rr_result, lc_result, custom_result
+
+# Visualization of the comparison
+def visualize_comparison(results):
+    labels = ['Round Robin', 'Least Connections', 'Custom Algorithm']
+    means = [np.mean([result[i] for result in results]) for i in range(3)]
+    
+    plt.bar(labels, means)
+    plt.xlabel('Load Balancing Algorithm')
+    plt.ylabel('Performance Metric')
+    plt.title('Comparison of Load Balancing Algorithms')
+    plt.show()
+
+# Run the comparison multiple times and visualize results
+num_simulations = 100
+num_requests = 1000
+results = [compare_algorithms(num_requests) for _ in range(num_simulations)]
+
+visualize_comparison(results)
